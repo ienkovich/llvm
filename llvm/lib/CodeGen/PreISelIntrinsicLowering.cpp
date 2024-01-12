@@ -72,7 +72,6 @@ static bool lowerLoadRelative(Function &F) {
 
   bool Changed = false;
   Type *Int32Ty = Type::getInt32Ty(F.getContext());
-  Type *Int8Ty = Type::getInt8Ty(F.getContext());
 
   for (Use &U : llvm::make_early_inc_range(F.uses())) {
     auto CI = dyn_cast<CallInst>(U.getUser());
@@ -81,10 +80,15 @@ static bool lowerLoadRelative(Function &F) {
 
     IRBuilder<> B(CI);
     Value *OffsetPtr =
-        B.CreateGEP(Int8Ty, CI->getArgOperand(0), CI->getArgOperand(1));
+        B.CreatePtrAdd(CI->getArgOperand(0), CI->getArgOperand(1));
     Value *OffsetI32 = B.CreateAlignedLoad(Int32Ty, OffsetPtr, Align(4));
 
+<<<<<<< HEAD
     Value *ResultPtr = B.CreateGEP(Int8Ty, CI->getArgOperand(0), OffsetI32);
+=======
+    Value *ResultPtr = B.CreatePtrAdd(CI->getArgOperand(0), OffsetI32);
+
+>>>>>>> 6c2fbc3a68ba6d4bd1c8c2c43c98cff5e82f2ba4
     CI->replaceAllUsesWith(ResultPtr);
     CI->eraseFromParent();
     Changed = true;
